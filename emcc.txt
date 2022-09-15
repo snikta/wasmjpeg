@@ -1,0 +1,1 @@
+emcc -o hello.js hello.c LinkedList.c -O2 -sEXPORTED_FUNCTIONS=_init,_getBuffer,_malloc,_free -sEXPORTED_RUNTIME_METHODS=ccall,cwrap -sALLOW_MEMORY_GROWTH=1 -s TOTAL_MEMORY=65536000

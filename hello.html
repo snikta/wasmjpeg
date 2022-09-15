@@ -1,0 +1,39 @@
+<!doctypehtml><html lang=en-us><head><meta charset=utf-8><meta content="text/html; charset=utf-8"http-equiv=Content-Type><style type="text/css">
+html,body{margin:0;padding:0;overflow:hidden;}
+</style><title>Emscripten-Generated Code</title></head><body>
+	<canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1 width=960 height=720></canvas>
+	<script async src=hello.js></script>
+	<script>
+	let canvasEl = document.createElement('canvas');
+	let ctx = canvasEl.getContext('2d');
+	const WIDTH = innerWidth;
+	const HEIGHT = innerHeight;
+	canvasEl.width = WIDTH;
+	canvasEl.height = HEIGHT;
+	document.body.appendChild(canvasEl);
+	window.onload=function () {
+	function render() {
+		let bbox = canvas.getBoundingClientRect();
+		let myTypedArray = new Uint8ClampedArray(WIDTH*HEIGHT*4);
+		let buf = Module._malloc(myTypedArray.length*myTypedArray.BYTES_PER_ELEMENT);
+		Module.HEAPU8.set(myTypedArray, buf);
+		if (!window.init) {
+			window.init = true;
+			Module._init();
+		}
+		let ptr = Module.ccall('getBuffer', 'number', [
+			'number',
+			'number',
+			'number'
+		], [buf, WIDTH, HEIGHT]);
+		var view = Module.HEAPU8.subarray(ptr, ptr+WIDTH*HEIGHT*4);
+		var js_array = new Uint8ClampedArray(view);
+		canvas.width = WIDTH;
+		canvas.height = HEIGHT;
+		canvas.getContext('2d').putImageData(new ImageData(js_array, WIDTH), 0, 0);
+		Module._free(buf);
+	}
+	window.onmousemove=function(){render();}
+	}</script>
+</body>
+</html>
