@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./LinkedList.h"
+#include "./types.h"
 
 void InsertNodeAtBeginningOfLinkedList(
 	struct LinkedList *lst,
@@ -8,6 +9,12 @@ void InsertNodeAtBeginningOfLinkedList(
 ) {
 	node->nextNode = lst->firstNode;
 	lst->firstNode = node;
+}
+
+LinkedListNode *CreateLinkedListNodeFromHuffmanNode(huffmanNode *huffNode) {
+	LinkedListNode *Node = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+	Node->huffNode = huffNode;
+	return Node;
 }
 
 LinkedListNode *CreateLinkedListNodeFromMCU(MCU mcu) {

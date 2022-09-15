@@ -11,6 +11,7 @@ typedef struct LinkedListNode {
 	MCU mcu;
 	struct LinkedList *lst;
 	char *str;
+	huffmanNode *huffNode;
 } LinkedListNode;
 
 void InsertNodeAtBeginningOfLinkedList(
@@ -28,6 +29,7 @@ int GetLinkedListSize(struct LinkedList *lst);
 LinkedList *CreateLinkedList();
 void RemoveLastLinkedListNode(LinkedList *lst);
 LinkedListNode *CreateLinkedListNodeFromMCU(MCU mcu);
+LinkedListNode *CreateLinkedListNodeFromHuffmanNode(huffmanNode *huffNode);
 LinkedListNode *CreateLinkedListNodeFromLinkedList(LinkedList *lst);
 LinkedListNode *CreateLinkedListNodeFromNewLinkedList();
 LinkedListNode *CreateLinkedListNodeFromString(char *str);

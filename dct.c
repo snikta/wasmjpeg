@@ -1,4 +1,7 @@
+#include "FastDct8.h"
 #include "types.h"
+
+extern int zigzag_flat[64];
 
 MCU dct(int idct, MCU myMCU) {
 	double inputY[8][8];

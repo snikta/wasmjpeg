@@ -21,8 +21,8 @@
  *   Software.
  */
 
-#include <cmath>
-#include "FastDct8.hpp"
+#include <math.h>
+#include "FastDct8.h"
 
 
 static const double S[] = {
