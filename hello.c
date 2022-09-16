@@ -471,7 +471,7 @@ huffmanNode* generateHuffmanTree(LinkedList *h, int sum, int htIdx) {
 		_node = GetLinkedListNodeByIndex(h, hIndex)->lst;
 		int _nodeIndex = 0;
 		int _nodeLen = GetLinkedListSize(_node);
-		LinkedList *oldRow = row;
+		LinkedList *oldRow = CopyHuffmanLinkedList(row);
 		if (_nodeLen)
 		{
 			do {

@@ -55,6 +55,18 @@ void AppendNodeToLinkedList(
 	node->nextNode = 0;
 }
 
+LinkedList *CopyHuffmanLinkedList(struct LinkedList *lst) {
+	LinkedList *copiedList = CreateLinkedList();
+	LinkedListNode *Node = lst->firstNode;
+	while (Node) {
+		LinkedListNode *newNode = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+		newNode->huffNode = Node->huffNode;
+		AppendNodeToLinkedList(copiedList, newNode);
+		Node = Node->nextNode;
+	}
+	return copiedList;
+}
+
 void ClearLinkedList(struct LinkedList *lst) {
 	LinkedListNode *curNode;
 	while ((curNode = lst->firstNode) != 0) {

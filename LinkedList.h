@@ -22,6 +22,7 @@ void AppendNodeToLinkedList(
 	struct LinkedList *lst,
 	struct LinkedListNode *node
 );
+LinkedList *CopyHuffmanLinkedList(struct LinkedList *lst);
 void ClearLinkedList(struct LinkedList *lst);
 
 LinkedListNode *GetLinkedListNodeByIndex(struct LinkedList *lst, int index);
