@@ -30,7 +30,7 @@ bit_set bit_set_invert(bit_set bs)
 {
 	for (int i = 0; i < bs.length; i++)
 	{
-		bit_set_toggle(bs, i);
+		bs = bit_set_toggle(bs, i);
 	}
 	return bs;
 }
@@ -48,5 +48,6 @@ char *bit_set_to_string(bit_set bs)
 			bin[i] = '0';
 		}
 	}
+	bin[bs.length] = '\0';
 	return bin;
 }

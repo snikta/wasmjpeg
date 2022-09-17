@@ -10,6 +10,7 @@ typedef struct LinkedListNode {
     struct LinkedListNode *nextNode;
 	MCU mcu;
 	struct LinkedList *lst;
+	struct RedBlackTree *rbt;
 	char *str;
 	huffmanNode *huffNode;
 } LinkedListNode;
@@ -31,6 +32,8 @@ LinkedList *CreateLinkedList();
 void RemoveLastLinkedListNode(LinkedList *lst);
 LinkedListNode *CreateLinkedListNodeFromMCU(MCU mcu);
 LinkedListNode *CreateLinkedListNodeFromHuffmanNode(huffmanNode *huffNode);
-LinkedListNode *CreateLinkedListNodeFromLinkedList(LinkedList *lst);
+LinkedListNode *CreateLinkedListNodeFromLinkedList(struct LinkedList *lst);
 LinkedListNode *CreateLinkedListNodeFromNewLinkedList();
+LinkedListNode *CreateLinkedListNodeFromRedBlackTree(struct RedBlackTree *rbt);
+LinkedListNode *CreateLinkedListNodeFromNewRedBlackTree();
 LinkedListNode *CreateLinkedListNodeFromString(char *str);

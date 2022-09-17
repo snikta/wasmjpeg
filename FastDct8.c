@@ -1,9 +1,9 @@
-/*
- * Fast discrete cosine transform algorithms (C++)
- *
+/* 
+ * Fast discrete cosine transform algorithms (C)
+ * 
  * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -48,7 +48,7 @@ static const double A[] = {
 
 // DCT type II, scaled. Algorithm by Arai, Agui, Nakajima, 1988.
 // See: https://web.stanford.edu/class/ee398a/handouts/lectures/07-TransformCoding.pdf#page=30
-void FastDct8_transform(double vector[8]) {
+void FastDct8_transform(double *vector) {
 	const double v0 = vector[0] + vector[7];
 	const double v1 = vector[1] + vector[6];
 	const double v2 = vector[2] + vector[5];
@@ -57,7 +57,7 @@ void FastDct8_transform(double vector[8]) {
 	const double v5 = vector[2] - vector[5];
 	const double v6 = vector[1] - vector[6];
 	const double v7 = vector[0] - vector[7];
-
+	
 	const double v8 = v0 + v3;
 	const double v9 = v1 + v2;
 	const double v10 = v1 - v2;
@@ -65,25 +65,25 @@ void FastDct8_transform(double vector[8]) {
 	const double v12 = -v4 - v5;
 	const double v13 = (v5 + v6) * A[3];
 	const double v14 = v6 + v7;
-
+	
 	const double v15 = v8 + v9;
 	const double v16 = v8 - v9;
 	const double v17 = (v10 + v11) * A[1];
 	const double v18 = (v12 + v14) * A[5];
-
+	
 	const double v19 = -v12 * A[2] - v18;
 	const double v20 = v14 * A[4] - v18;
-
+	
 	const double v21 = v17 + v11;
 	const double v22 = v11 - v17;
 	const double v23 = v13 + v7;
 	const double v24 = v7 - v13;
-
+	
 	const double v25 = v19 + v24;
 	const double v26 = v23 + v20;
 	const double v27 = v23 - v20;
 	const double v28 = v24 - v19;
-
+	
 	vector[0] = S[0] * v15;
 	vector[1] = S[1] * v26;
 	vector[2] = S[2] * v21;
@@ -96,7 +96,7 @@ void FastDct8_transform(double vector[8]) {
 
 
 // DCT type III, scaled. A straightforward inverse of the forward algorithm.
-void FastDct8_inverseTransform(double vector[8]) {
+void FastDct8_inverseTransform(double *vector) {
 	const double v15 = vector[0] / S[0];
 	const double v26 = vector[1] / S[1];
 	const double v21 = vector[2] / S[2];
@@ -105,40 +105,40 @@ void FastDct8_inverseTransform(double vector[8]) {
 	const double v25 = vector[5] / S[5];
 	const double v22 = vector[6] / S[6];
 	const double v27 = vector[7] / S[7];
-
-	const double v19 = (v25 - v28) / 2;
-	const double v20 = (v26 - v27) / 2;
-	const double v23 = (v26 + v27) / 2;
-	const double v24 = (v25 + v28) / 2;
-
-	const double v7 = (v23 + v24) / 2;
-	const double v11 = (v21 + v22) / 2;
-	const double v13 = (v23 - v24) / 2;
-	const double v17 = (v21 - v22) / 2;
-
-	const double v8 = (v15 + v16) / 2;
-	const double v9 = (v15 - v16) / 2;
-
+	
+	const double v19 = (v25 - v28) / 2.0;
+	const double v20 = (v26 - v27) / 2.0;
+	const double v23 = (v26 + v27) / 2.0;
+	const double v24 = (v25 + v28) / 2.0;
+	
+	const double v7  = (v23 + v24) / 2.0;
+	const double v11 = (v21 + v22) / 2.0;
+	const double v13 = (v23 - v24) / 2.0;
+	const double v17 = (v21 - v22) / 2.0;
+	
+	const double v8 = (v15 + v16) / 2.0;
+	const double v9 = (v15 - v16) / 2.0;
+	
 	const double v18 = (v19 - v20) * A[5];  // Different from original
 	const double v12 = (v19 * A[4] - v18) / (A[2] * A[5] - A[2] * A[4] - A[4] * A[5]);
 	const double v14 = (v18 - v20 * A[2]) / (A[2] * A[5] - A[2] * A[4] - A[4] * A[5]);
-
+	
 	const double v6 = v14 - v7;
 	const double v5 = v13 / A[3] - v6;
 	const double v4 = -v5 - v12;
 	const double v10 = v17 / A[1] - v11;
-
-	const double v0 = (v8 + v11) / 2;
-	const double v1 = (v9 + v10) / 2;
-	const double v2 = (v9 - v10) / 2;
-	const double v3 = (v8 - v11) / 2;
-
-	vector[0] = (v0 + v7) / 2;
-	vector[1] = (v1 + v6) / 2;
-	vector[2] = (v2 + v5) / 2;
-	vector[3] = (v3 + v4) / 2;
-	vector[4] = (v3 - v4) / 2;
-	vector[5] = (v2 - v5) / 2;
-	vector[6] = (v1 - v6) / 2;
-	vector[7] = (v0 - v7) / 2;
+	
+	const double v0 = (v8 + v11) / 2.0;
+	const double v1 = (v9 + v10) / 2.0;
+	const double v2 = (v9 - v10) / 2.0;
+	const double v3 = (v8 - v11) / 2.0;
+	
+	vector[0] = (v0 + v7) / 2.0;
+	vector[1] = (v1 + v6) / 2.0;
+	vector[2] = (v2 + v5) / 2.0;
+	vector[3] = (v3 + v4) / 2.0;
+	vector[4] = (v3 - v4) / 2.0;
+	vector[5] = (v2 - v5) / 2.0;
+	vector[6] = (v1 - v6) / 2.0;
+	vector[7] = (v0 - v7) / 2.0;
 }

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./LinkedList.h"
+#include "./RedBlackTree.h"
 #include "./types.h"
 
 void InsertNodeAtBeginningOfLinkedList(
@@ -32,6 +33,18 @@ LinkedListNode *CreateLinkedListNodeFromLinkedList(LinkedList *lst) {
 LinkedListNode *CreateLinkedListNodeFromNewLinkedList() {
 	LinkedListNode *Node = (LinkedListNode *) malloc(sizeof(LinkedListNode));
 	Node->lst = CreateLinkedList();
+	return Node;
+}
+
+LinkedListNode *CreateLinkedListNodeFromRedBlackTree(RedBlackTree *rbt) {
+	LinkedListNode *Node = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+	Node->rbt = rbt;
+	return Node;
+}
+
+LinkedListNode *CreateLinkedListNodeFromNewRedBlackTree() {
+	LinkedListNode *Node = (LinkedListNode *) malloc(sizeof(LinkedListNode));
+	Node->rbt = rbt_create();
 	return Node;
 }
 
