@@ -6,12 +6,11 @@
 #include <ctype.h>
 #include <string.h>
 #include "bit_set.h"
-#include "FastDct8.h"
-#include "dct.h"
 #include "LinkedList.h"
 #include "RedBlackTree.h"
 #include "types.h"
 #include "mathHelpers.h"
+#include "dct.h"
 //#include "apollo.h"
 
 //extern unsigned char bmpApollo[141056];
@@ -39,6 +38,22 @@ int zigzag_flat[64] = {
 };
 
 int qTables[2][64] = {
+	/*{16, 11, 10, 16, 24, 40, 51, 61,
+	12, 12, 14, 19, 26, 58, 60, 55,
+	14, 13, 16, 24, 40, 57, 69, 56,
+	14, 17, 22, 29, 51, 87, 80, 62,
+	18, 22, 37, 56, 68, 109, 103, 77,
+	24, 36, 55, 64, 81, 104, 113, 92,
+	49, 64, 78, 87, 103, 121, 120, 101,
+	72, 92, 95, 98, 112, 100, 103, 99},
+	{16, 11, 10, 16, 24, 40, 51, 61,
+	12, 12, 14, 19, 26, 58, 60, 55,
+	14, 13, 16, 24, 40, 57, 69, 56,
+	14, 17, 22, 29, 51, 87, 80, 62,
+	18, 22, 37, 56, 68, 109, 103, 77,
+	24, 36, 55, 64, 81, 104, 113, 92,
+	49, 64, 78, 87, 103, 121, 120, 101,
+	72, 92, 95, 98, 112, 100, 103, 99}*/
 	{16,16,16,16,16,16,16,16,
 	16,16,16,16,16,16,16,16,
 	16,16,16,16,16,16,16,16,
@@ -337,14 +352,28 @@ int huffmanEncode(int Yval, int i, int Y_zrl) {
 	return Y_zrl;
 }
 
+RedBlackTree *rbtCosines = 0;
+
+char *getDCTKey(int y, int x, int Y, int X) {
+	char *key = strdup("");
+	key = append_string(key, itoa__(y, 10));
+	key = append_char_to_string(key, '_');
+	key = append_string(key, itoa__(x, 10));
+	key = append_char_to_string(key, '_');
+	key = append_string(key, itoa__(Y, 10));
+	key = append_char_to_string(key, '_');
+	key = append_string(key, itoa__(X, 10));
+	return key;
+}
+
 RGB *YCbCr_to_RGB(double Y, double Cb, double Cr) {
 	double R;
 	double G;
 	double B;
 
-	Y += 128.0;
-	Cb += 128.0;
-	Cr += 128.0;
+	//Y += 128.0;
+	//Cb += 128.0;
+	//Cr += 128.0;
 	R = Y + 1.402 * ((double)Cr - 128.0);
 	G = Y - 0.34414 * ((double)Cb - 128.0) - 0.71414 * ((double)Cr - 128.0);
 	B = Y + 1.772 * ((double)Cb - 128.0);
@@ -365,9 +394,9 @@ YCbCr *RGB_to_YCbCr(double R, double G, double B) {
 	double Cb = (B - Y) / (2 - 2 * 0.114) + 128;
 	double Cr = (R - Y) / (2 - 2 * 0.299) + 128;
 
-	Y -= 128.0;
-	Cb -= 128.0;
-	Cr -= 128.0;
+	//Y -= 128.0;
+	//Cb -= 128.0;
+	//Cr -= 128.0;
 
 	YCbCr *result = malloc(sizeof(YCbCr));
 	result->Y = Y;
@@ -393,12 +422,25 @@ void encodeImage(unsigned char *curFrame) {
 						(double)(unsigned int)curFrame[r + 2]
 					);
 
-					myMCU.Y[idx] = (int)result->Y;
-					myMCU.Cb[idx] = (int)result->Cb;
-					myMCU.Cr[idx] = (int)result->Cr;
+					myMCU.Y[idx] = (curFrame[r]+curFrame[r + 1]+curFrame[r + 2])/3;
+					myMCU.Cb[idx] = (curFrame[r]+curFrame[r + 1]+curFrame[r + 2])/3;
+					myMCU.Cr[idx] = (curFrame[r]+curFrame[r + 1]+curFrame[r + 2])/3;
 
 					free(result);
 				}
+			}
+			/*int matrix[64] = {52, 55, 61, 66, 70, 61, 64, 73,
+	63, 59, 55, 90, 109, 85, 69, 72,
+	62, 59, 68, 113, 144, 104, 66, 73,
+	63, 58, 71, 122, 154, 106, 70, 69,
+	67, 61, 68, 104, 126, 88, 68, 70,
+	79, 65, 60, 70, 77, 68, 58, 75,
+	85, 71, 64, 59, 55, 61, 65, 83,
+	87, 79, 69, 68, 65, 76, 78, 94};*/
+			for (int k = 0; k < 64; k++) {
+				myMCU.Y[k] = myMCU.Y[k]-128;
+				myMCU.Cb[k] = myMCU.Cb[k]-128;
+				myMCU.Cr[k] = myMCU.Cr[k]-128;
 			}
 			AppendNodeToLinkedList(oldMCUs, CreateLinkedListNodeFromMCU(myMCU));
 		}
@@ -409,7 +451,12 @@ void encodeImage(unsigned char *curFrame) {
 		for (int x = 0, width = frameWidth; x < width; x += MACROBLOCK_SIZE) {
 			MCU oldMCU = GetLinkedListNodeByIndex(oldMCUs, mcuIdx)->mcu;
 			MCU newMCU;
-			oldMCU = dct(0, oldMCU);
+			MCU ptrMCU = dct(0, oldMCU);
+			for (int i = 0; i < 64; i++) {
+				oldMCU.Y[i] = ptrMCU.Y[i];
+				oldMCU.Cb[i] = ptrMCU.Cb[i];
+				oldMCU.Cr[i] = ptrMCU.Cr[i];
+			}
 
 			int Y_zrl = 0;
 			for (int i = 0; i < 64; i++) {
@@ -417,7 +464,8 @@ void encodeImage(unsigned char *curFrame) {
 				newMCU.Y[zz] = oldMCU.Y[i];
 			}
 			for (int i = 0; i < 64; i++) {
-				int Yval = (int)round((double)newMCU.Y[i] / 16.0);
+				int Yval = (int)newMCU.Y[i];//(int)round((double)newMCU.Y[i] / (double)qTables[0][i]);
+				Yval/=16;
 				Y_zrl = huffmanEncode(Yval, i, Y_zrl);
 			}
 			addBit(1);
@@ -431,7 +479,8 @@ void encodeImage(unsigned char *curFrame) {
 				newMCU.Cb[zz] = oldMCU.Cb[i];
 			}
 			for (int i = 0; i < 64; i++) {
-				int Cbval = (int)round((double)newMCU.Cb[i] / 16.0);//qTables[1][i]);
+				int Cbval = (int)newMCU.Y[i];//(int)round((double)newMCU.Cb[i] / (double)qTables[1][i]);
+				Cbval/=16;
 				Y_zrl = huffmanEncode(Cbval, i, Y_zrl);
 			}
 			addBit(1);
@@ -445,7 +494,8 @@ void encodeImage(unsigned char *curFrame) {
 				newMCU.Cr[zz] = oldMCU.Cr[i];
 			}
 			for (int i = 0; i < 64; i++) {
-				int Crval = (int)round((double)newMCU.Cr[i] / 16.0);//qTables[1][i]);
+				int Crval = (int)newMCU.Y[i];//(int)round((double)newMCU.Cr[i] / (double)qTables[1][i]);
+				Crval/=16;
 				Y_zrl = huffmanEncode(Crval, i, Y_zrl);
 			}
 			addBit(1);
@@ -556,7 +606,7 @@ void finishMCU(int *comp, huffmanNode* huffRoot, int qTblIdx) {
 			AC_counter += nr_of_prev_0;
 
 			if (AC_counter < 64) {
-				comp[AC_counter] = result * 16;// / qTables[qTblIdx][AC_counter];
+				comp[AC_counter] = result * qTables[qTblIdx][AC_counter];
 			}
 			AC_counter++;
 		}
@@ -595,22 +645,46 @@ void decodeImage(huffmanNode *ht) {
 		free(newCb);
 		free(newCr);
 		
-		newMCU = dct(1, newMCU);
+		MCU ptrMCU = dct(1, newMCU);
+		for (int i = 0; i < 64; i++) {
+			newMCU.Y[i] = ptrMCU.Y[i]+128;
+			newMCU.Cb[i] = ptrMCU.Cb[i]+128;
+			newMCU.Cr[i] = ptrMCU.Cr[i]+128;
+		}
+		for (int j = 0; j < 8; j++) {
+			char *str = strdup("");
+			for (int i = 0; i < 8; i++) {
+				int num = newMCU.Y[j * 8 + i];
+				char *str2 = strdup("");
+				if (num < 0) {
+					str2 = append_char_to_string(str2, '-');
+				}
+				str2 = append_string(str2, strdup(itoa__(abs(num), 10)));
+				str2 = append_char_to_string(str2, ' ');
+				str = append_string(str, str2);
+				free(str2);
+			}
+			printf("{%s}\n", str);
+			free(str);
+		}
 
 		for (int y = 0; y < MACROBLOCK_SIZE; y++) {
 			for (int x = 0; x < MACROBLOCK_SIZE; x++) {
 				int idx = y * MACROBLOCK_SIZE + x;
-				RGB *RGB_val = YCbCr_to_RGB(
+				RGB *RGB_val = (RGB *) malloc(sizeof(RGB));/* = YCbCr_to_RGB(
 					(double)newMCU.Y[idx],
 					(double)newMCU.Cb[idx],
 					(double)newMCU.Cr[idx]
-				);
+				);*/
+				RGB_val->R = (double)newMCU.Y[idx];
+				RGB_val->G = (double)newMCU.Y[idx];
+				RGB_val->B = (double)newMCU.Y[idx];
 				int r = (YY + y) * width * 4 + (XX + x) * 4;
 				decodedFrame[r] = (unsigned char)(int)RGB_val->R;
 				decodedFrame[r + 1] = (unsigned char)(int)RGB_val->G;
 				decodedFrame[r + 2] = (unsigned char)(int)RGB_val->B;
 				decodedFrame[r + 3] = 255;
-				printf("%f..%f..%f\n", RGB_val->R, RGB_val->G, RGB_val->B);
+				//printf("%f..%f..%f\n", RGB_val->R, RGB_val->G, RGB_val->B);
 				free(RGB_val);
 			}
 		}
@@ -627,6 +701,40 @@ void decodeImage(huffmanNode *ht) {
 }
 
 void init() {
+	int matrix[64] = {52, 55, 61, 66, 70, 61, 64, 73,
+	63, 59, 55, 90, 109, 85, 69, 72,
+	62, 59, 68, 113, 144, 104, 66, 73,
+	63, 58, 71, 122, 154, 106, 70, 69,
+	67, 61, 68, 104, 126, 88, 68, 70,
+	79, 65, 60, 70, 77, 68, 58, 75,
+	85, 71, 64, 59, 55, 61, 65, 83,
+	87, 79, 69, 68, 65, 76, 78, 94};
+
+	MCU m;
+	for (int i = 0; i < 64; i++) {
+		m.Y[i] = matrix[i]-128;
+		m.Cb[i] = matrix[i]-128;
+		m.Cr[i] = matrix[i]-128;
+	}
+
+	MCU mm = dct(0, m);
+	for (int j = 0; j < 8; j++) {
+		char *str = strdup("");
+		for (int i = 0; i < 8; i++) {
+			int num = mm.Y[j * 8 + i];
+			char *str2 = strdup("");
+			if (num < 0) {
+				str2 = append_char_to_string(str2, '-');
+			}
+			str2 = append_string(str2, strdup(itoa__(abs(num), 10)));
+			str2 = append_char_to_string(str2, ' ');
+			str = append_string(str, str2);
+			free(str2);
+		}
+		printf("{%s}\n", str);
+		free(str);
+	}
+
 	r_htLumDC = CreateLinkedList();
 	LinkedListNode *Node = CreateLinkedListNodeFromNewLinkedList();
 	AppendNodeToLinkedList(r_htLumDC, Node);

@@ -3,6 +3,13 @@
 #include "./mathHelpers.h"
 #include "./stringHelpers.h"
 
+_ASTNode *CreateASTPointNode(double x, double y) {
+	_ASTNode *retval = malloc(sizeof(_ASTNode));
+	retval->ASTXValue = x;
+	retval->ASTYValue = y;
+	return retval;
+}
+
 _ASTNode *CreateASTNumberNode(int num) {
 	_ASTNode *retval = malloc(sizeof(_ASTNode));
 	retval->ASTNumberValue = num;

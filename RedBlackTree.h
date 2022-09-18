@@ -43,6 +43,8 @@ RedBlackNode* rbt_push(RedBlackTree *tree, struct _ASTNode *value);
 RedBlackNode* rbt_search_for_value(RedBlackTree *tree, struct _ASTNode *value);
 
 typedef struct _ASTNode {
+	double ASTXValue;
+	double ASTYValue;
 	int ASTNumberValue;
 	char *ASTStringValue;
 	char *cachedResult;
@@ -57,5 +59,6 @@ typedef struct _ASTNode {
 	MergedCellProperties *merged;
 } _ASTNode;
 
+_ASTNode *CreateASTPointNode(double x, double y);
 _ASTNode *CreateASTNumberNode(int num);
 _ASTNode *CreateASTStringNode(char *str);

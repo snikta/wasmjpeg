@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "linkedlist.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "mathhelpers.h": "c",
+        "dct.h": "c",
+        "types.h": "c",
+        "stdio.h": "c"
     }
 }

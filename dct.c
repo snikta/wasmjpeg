@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "FastDct8.h"
 #include "types.h"
+#include "stringHelpers.h"
 
 extern int zigzag_flat[64];
 
@@ -13,38 +15,22 @@ MCU dct(int idct, MCU myMCU) {
 		for (int i = 0; i < 8; i++) {
 			int idx = i * 8 + j;
 			if (idct) {
-				//idx = zigzag_flat[idx];
+				idx = zigzag_flat[idx];
 			}
 			inputY[j][i] = (double)myMCU.Y[idx];
 			inputCb[j][i] = (double)myMCU.Cb[idx];
 			inputCr[j][i] = (double)myMCU.Cr[idx];
 		}
-		double *vectorY = malloc(sizeof(double) * 8);
-		double *vectorCb = malloc(sizeof(double) * 8);
-		double *vectorCr = malloc(sizeof(double) * 8);
-		for (int x = 0; x < 8; x++) {
-			vectorY[x] = inputY[j][x];
-			vectorCb[x] = inputCb[j][x];
-			vectorCr[x] = inputCr[j][x];
-		}
 		if (idct) {
-			FastDct8_inverseTransform(vectorY);
-			FastDct8_inverseTransform(vectorCb);
-			FastDct8_inverseTransform(vectorCr);
+			FastDct8_inverseTransform(inputY[j]);
+			FastDct8_inverseTransform(inputCb[j]);
+			FastDct8_inverseTransform(inputCr[j]);
 		}
 		else {
-			FastDct8_transform(vectorY);
-			FastDct8_transform(vectorCb);
-			FastDct8_transform(vectorCr);
+			FastDct8_transform(inputY[j]);
+			FastDct8_transform(inputCb[j]);
+			FastDct8_transform(inputCr[j]);
 		}
-		for (int x = 0; x < 8; x++) {
-			inputY[j][x] = vectorY[x];
-			inputCb[j][x] = vectorCb[x];
-			inputCr[j][x] = vectorCr[x];
-		}
-		free(vectorY);
-		free(vectorCb);
-		free(vectorCr);
 	}
 
 	double outputY[8][8];
@@ -56,33 +42,37 @@ MCU dct(int idct, MCU myMCU) {
 			outputCb[j][i] = inputCb[i][j];
 			outputCr[j][i] = inputCr[i][j];
 		}
-		double *vectorY = malloc(sizeof(double) * 8);
-		double *vectorCb = malloc(sizeof(double) * 8);
-		double *vectorCr = malloc(sizeof(double) * 8);
-		for (int x = 0; x < 8; x++) {
-			vectorY[x] = outputY[j][x];
-			vectorCb[x] = outputCb[j][x];
-			vectorCr[x] = outputCr[j][x];
-		}
 		if (idct) {
-			FastDct8_inverseTransform(vectorY);
-			FastDct8_inverseTransform(vectorCb);
-			FastDct8_inverseTransform(vectorCr);
+			FastDct8_inverseTransform(outputY[j]);
+			FastDct8_inverseTransform(outputCb[j]);
+			FastDct8_inverseTransform(outputCr[j]);
 		}
 		else {
-			FastDct8_transform(vectorY);
-			FastDct8_transform(vectorCb);
-			FastDct8_transform(vectorCr);
+			FastDct8_transform(outputY[j]);
+			FastDct8_transform(outputCb[j]);
+			FastDct8_transform(outputCr[j]);
 		}
-		for (int x = 0; x < 8; x++) {
-			outputY[j][x] = vectorY[x];
-			outputCb[j][x] = vectorCb[x];
-			outputCr[j][x] = vectorCr[x];
-		}
-		free(vectorY);
-		free(vectorCb);
-		free(vectorCr);
 	}
+
+	/*for (int j = 0; j < 8; j++) {
+		char *str = strdup("");
+		for (int i = 0; i < 8; i++) {
+			double amount = round(outputY[j][i] * 100.0) / 100.0;
+			int len = snprintf(NULL, 0, "%f", amount);
+			char *result = malloc(len + 1);
+			snprintf(result, len + 1, "%f", amount);
+			// do stuff with result
+			char *num = result;
+			char *str2 = strdup("");
+			str2 = append_string(str2, strdup(num));
+			str2 = append_char_to_string(str2, ' ');
+			str = append_string(str, str2);
+			free(str2);
+			free(result);
+		}
+		printf("{%s}\n", str);
+		free(str);
+	}*/
 
 	for (int j = 0; j < 8; j++) {
 		for (int i = 0; i < 8; i++) {
@@ -90,7 +80,6 @@ MCU dct(int idct, MCU myMCU) {
 			myMCU.Y[idx] = (int)outputY[j][i];
 			myMCU.Cb[idx] = (int)outputCb[j][i];
 			myMCU.Cr[idx] = (int)outputCr[j][i];
-			printf("(%d, %d, %d)\n", myMCU.Y[idx], myMCU.Cb[idx], myMCU.Cr[idx]);
 		}
 	}
 	

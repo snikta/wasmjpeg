@@ -1,1 +1,1 @@
-emcc -o hello.js hello.c mathHelpers.c LinkedList.c RedBlackTree.c bit_set.c dct.c FastDct8.c -O2 -sEXPORTED_FUNCTIONS=_init,_getBuffer,_malloc,_free -sEXPORTED_RUNTIME_METHODS=ccall,cwrap -sALLOW_MEMORY_GROWTH=1 -s TOTAL_MEMORY=65536000
+emcc -o hello.js hello.c mathHelpers.c LinkedList.c RedBlackTree.c bit_set.c FastDct8.c dct.c -O2 -sEXPORTED_FUNCTIONS=_init,_getBuffer,_malloc,_free -sEXPORTED_RUNTIME_METHODS=ccall,cwrap -sALLOW_MEMORY_GROWTH=1 -s TOTAL_MEMORY=65536000
