@@ -5,6 +5,7 @@
         "mathhelpers.h": "c",
         "dct.h": "c",
         "types.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stringhelpers.h": "c"
     }
 }
