@@ -51,7 +51,14 @@ char* itoa__(int val, int base){ // h/t https://stackoverflow.com/a/3987783
 	}
     static char buf[32] = {0};
     int i = 30;
+	int ltz = val < 0;
+	val = abs(val);
     for(; val && i ; --i, val /= base)
         buf[i] = "0123456789abcdef"[val % base];
-    return &buf[i+1];
+	char *ret = strdup("");
+	if (ltz) {
+		ret = append_char_to_string(ret, '-');
+	}
+	ret = append_string(ret, &buf[i+1]);
+    return ret;
 }

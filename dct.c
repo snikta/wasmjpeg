@@ -7,7 +7,7 @@
 
 extern int zigzag_flat[64];
 
-MCU dct(int idct, MCU myMCU) {
+void dct(int idct, MCU *myMCU) {
 	double inputY[8][8];
 	double inputCb[8][8];
 	double inputCr[8][8];
@@ -17,9 +17,9 @@ MCU dct(int idct, MCU myMCU) {
 			if (idct) {
 				idx = zigzag_flat[idx];
 			}
-			inputY[j][i] = (double)myMCU.Y[idx];
-			inputCb[j][i] = (double)myMCU.Cb[idx];
-			inputCr[j][i] = (double)myMCU.Cr[idx];
+			inputY[j][i] = (double)myMCU->Y[idx];
+			inputCb[j][i] = (double)myMCU->Cb[idx];
+			inputCr[j][i] = (double)myMCU->Cr[idx];
 		}
 		if (idct) {
 			FastDct8_inverseTransform(inputY[j]);
@@ -54,34 +54,12 @@ MCU dct(int idct, MCU myMCU) {
 		}
 	}
 
-	/*for (int j = 0; j < 8; j++) {
-		char *str = strdup("");
-		for (int i = 0; i < 8; i++) {
-			double amount = round(outputY[j][i] * 100.0) / 100.0;
-			int len = snprintf(NULL, 0, "%f", amount);
-			char *result = malloc(len + 1);
-			snprintf(result, len + 1, "%f", amount);
-			// do stuff with result
-			char *num = result;
-			char *str2 = strdup("");
-			str2 = append_string(str2, strdup(num));
-			str2 = append_char_to_string(str2, ' ');
-			str = append_string(str, str2);
-			free(str2);
-			free(result);
-		}
-		printf("{%s}\n", str);
-		free(str);
-	}*/
-
 	for (int j = 0; j < 8; j++) {
 		for (int i = 0; i < 8; i++) {
 			int idx = j * 8 + i;
-			myMCU.Y[idx] = (int)outputY[j][i];
-			myMCU.Cb[idx] = (int)outputCb[j][i];
-			myMCU.Cr[idx] = (int)outputCr[j][i];
+			myMCU->Y[idx] = outputY[j][i];
+			myMCU->Cb[idx] = outputCb[j][i];
+			myMCU->Cr[idx] = outputCr[j][i];
 		}
 	}
-	
-	return myMCU;
 }
