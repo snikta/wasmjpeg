@@ -36,6 +36,13 @@ int max(int x, int y) {
 int clamp(int value, int minval, int maxval) {
 	return min(max(value, minval), maxval);
 }
+double fclamp(
+    double value,
+    double minval,
+    double maxval
+) {
+	return min(max(value, minval), maxval);
+}
 double fmin(double x, double y) {
 	return x < y ? x : y;
 }
