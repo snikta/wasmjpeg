@@ -1,9 +1,9 @@
 #include <stdlib.h>
-#include "./RedBlackTree.h"
+#include "./WASMJPEGRedBlackTree.h"
 #include "./mathHelpers.h"
 #include "./stringHelpers.h"
 
-_ASTNode *CreateASTPointNode(double x, double y) {
+/*_ASTNode *CreateASTPointNode(double x, double y) {
 	_ASTNode *retval = malloc(sizeof(_ASTNode));
 	retval->ASTXValue = x;
 	retval->ASTYValue = y;
@@ -35,11 +35,11 @@ int isNaN(char *val) {
 		}
 	}
 	return 0;
-}
+}*/
 
-RedBlackTree* rbt_create() {
-	RedBlackTree* tree = (RedBlackTree *) malloc(sizeof(RedBlackTree));
-	RedBlackNode* nil = (RedBlackNode *) malloc(sizeof(RedBlackNode));
+WASMJPEGRedBlackTree* wasmjpeg_rbt_create() {
+	WASMJPEGRedBlackTree* tree = (WASMJPEGRedBlackTree *) malloc(sizeof(WASMJPEGRedBlackTree));
+	WASMJPEGRedBlackNode* nil = (WASMJPEGRedBlackNode *) malloc(sizeof(WASMJPEGRedBlackNode));
 	tree->nil = nil;
 	tree->nil->key = strdup("-1");
 	tree->nil->left = nil;
@@ -49,11 +49,11 @@ RedBlackTree* rbt_create() {
 	return tree;
 }
 
-RedBlackNode* rbt_search(RedBlackTree *tree, char *key, int closest)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_search(WASMJPEGRedBlackTree *tree, char *key, int closest)
 {
 	int dKey = atoi(key);
-	RedBlackNode* x = tree->root;
-	RedBlackNode* lastGood = x;
+	WASMJPEGRedBlackNode* x = tree->root;
+	WASMJPEGRedBlackNode* lastGood = x;
 	while (x != tree->nil && strcmp(key, x->key) != 0)
 	{
 		lastGood = x;
@@ -85,13 +85,13 @@ RedBlackNode* rbt_search(RedBlackTree *tree, char *key, int closest)
 		return strcmp(x->key, key) == 0 ? x : tree->nil;
 	}
 };
-RedBlackNode* rbt_closest(RedBlackTree *tree, char *key)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_closest(WASMJPEGRedBlackTree *tree, char *key)
 {
-	return rbt_search(tree, key, 1);
+	return wasmjpeg_rbt_search(tree, key, 1);
 };
-void rbt_leftRotate(RedBlackTree *tree, RedBlackNode *x)
+void wasmjpeg_rbt_leftRotate(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode *x)
 {
-	RedBlackNode* y = x->right;
+	WASMJPEGRedBlackNode* y = x->right;
 	x->right = y->left;
 	if (y->left != tree->nil)
 	{
@@ -116,9 +116,9 @@ void rbt_leftRotate(RedBlackTree *tree, RedBlackNode *x)
 	y->left = x;
 	x->parent = y;
 };
-void rbt_rightRotate(RedBlackTree *tree, RedBlackNode *x)
+void wasmjpeg_rbt_rightRotate(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode *x)
 {
-	RedBlackNode* y = x->left;
+	WASMJPEGRedBlackNode* y = x->left;
 	x->left = y->right;
 	if (y->right != tree->nil)
 	{
@@ -143,16 +143,16 @@ void rbt_rightRotate(RedBlackTree *tree, RedBlackNode *x)
 	y->right = x;
 	x->parent = y;
 };
-RedBlackNode* rbt_binaryInsert(RedBlackTree *tree, char *newKey, struct _ASTNode *value)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_binaryInsert(WASMJPEGRedBlackTree *tree, char *newKey, struct _ASTNode *value)
 {
-	RedBlackNode* z = (RedBlackNode *) malloc(sizeof(RedBlackNode)); // free later?
+	WASMJPEGRedBlackNode* z = (WASMJPEGRedBlackNode *) malloc(sizeof(WASMJPEGRedBlackNode)); // free later?
 	z->color = black;
 	z->key = strdup(newKey);
 	z->left = tree->nil;
 	z->right = tree->nil;
 	z->parent = tree->nil;
-	RedBlackNode* y = tree->nil;
-	RedBlackNode* x = tree->root;
+	WASMJPEGRedBlackNode* y = tree->nil;
+	WASMJPEGRedBlackNode* x = tree->root;
 	int dKey = atoi(z->key);
 	while (x != tree->nil)
 	{
@@ -204,17 +204,17 @@ RedBlackNode* rbt_binaryInsert(RedBlackTree *tree, char *newKey, struct _ASTNode
 	z->value = value;
 	return z;
 };
-RedBlackNode* rbt_insert(RedBlackTree *tree, char *newKey, struct _ASTNode *value)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_insert(WASMJPEGRedBlackTree *tree, char *newKey, struct _ASTNode *value)
 {
-	RedBlackNode *match = rbt_search(tree, newKey, 0);
+	WASMJPEGRedBlackNode *match = wasmjpeg_rbt_search(tree, newKey, 0);
 	if (match != tree->nil)
 	{
 		match->value = value;
 		return match;
 	}
-	RedBlackNode* x = rbt_binaryInsert(tree, newKey, value);
-	RedBlackNode* newNode = x;
-	RedBlackNode* y;
+	WASMJPEGRedBlackNode* x = wasmjpeg_rbt_binaryInsert(tree, newKey, value);
+	WASMJPEGRedBlackNode* newNode = x;
+	WASMJPEGRedBlackNode* y;
 	x->color = red;
 	while (x != tree->root && x->parent->color == red)
 	{
@@ -233,11 +233,11 @@ RedBlackNode* rbt_insert(RedBlackTree *tree, char *newKey, struct _ASTNode *valu
 				if (x == x->parent->right)
 				{
 					x = x->parent;
-					rbt_leftRotate(tree, x);
+					wasmjpeg_rbt_leftRotate(tree, x);
 				}
 				x->parent->color = black;
 				x->parent->parent->color = red;
-				rbt_rightRotate(tree, x->parent->parent);
+				wasmjpeg_rbt_rightRotate(tree, x->parent->parent);
 			}
 		}
 		else
@@ -255,18 +255,18 @@ RedBlackNode* rbt_insert(RedBlackTree *tree, char *newKey, struct _ASTNode *valu
 				if (x == x->parent->left)
 				{
 					x = x->parent;
-					rbt_rightRotate(tree, x);
+					wasmjpeg_rbt_rightRotate(tree, x);
 				}
 				x->parent->color = black;
 				x->parent->parent->color = red;
-				rbt_leftRotate(tree, x->parent->parent);
+				wasmjpeg_rbt_leftRotate(tree, x->parent->parent);
 			}
 		}
 	}
 	tree->root->color = black;
 	return newNode;
 };
-RedBlackNode* rbt_minimum(RedBlackTree *tree, RedBlackNode* x)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_minimum(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
 {
 	while (x->left != tree->nil)
 	{
@@ -274,7 +274,7 @@ RedBlackNode* rbt_minimum(RedBlackTree *tree, RedBlackNode* x)
 	}
 	return x;
 };
-RedBlackNode* rbt_maximum(RedBlackTree *tree, RedBlackNode* x)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_maximum(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
 {
 	while (x->right != tree->nil)
 	{
@@ -282,12 +282,12 @@ RedBlackNode* rbt_maximum(RedBlackTree *tree, RedBlackNode* x)
 	}
 	return x;
 };
-RedBlackNode* rbt_predecessor(RedBlackTree *tree, RedBlackNode* x)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_predecessor(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
 {
-	RedBlackNode* y;
+	WASMJPEGRedBlackNode* y;
 	if (x->left != tree->nil)
 	{
-		return rbt_maximum(tree, x->left);
+		return wasmjpeg_rbt_maximum(tree, x->left);
 	}
 	y = x->parent;
 	while (y != tree->nil && x == y->left)
@@ -297,12 +297,12 @@ RedBlackNode* rbt_predecessor(RedBlackTree *tree, RedBlackNode* x)
 	}
 	return y;
 };
-RedBlackNode* rbt_successor(RedBlackTree *tree, RedBlackNode* x)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_successor(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
 {
-	RedBlackNode* y;
+	WASMJPEGRedBlackNode* y;
 	if (x->right != tree->nil)
 	{
-		return rbt_minimum(tree, x->right);
+		return wasmjpeg_rbt_minimum(tree, x->right);
 	}
 	y = x->parent;
 	while (y != tree->nil && x == y->right)
@@ -312,9 +312,9 @@ RedBlackNode* rbt_successor(RedBlackTree *tree, RedBlackNode* x)
 	}
 	return y;
 };
-void rbt_deleteNodeFixup(RedBlackTree *tree, RedBlackNode* x)
+void wasmjpeg_rbt_deleteNodeFixup(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
 {
-	RedBlackNode* w;
+	WASMJPEGRedBlackNode* w;
 	while (x != tree->root && x->color == black)
 	{
 		if (x == x->parent->left)
@@ -324,7 +324,7 @@ void rbt_deleteNodeFixup(RedBlackTree *tree, RedBlackNode* x)
 			{
 				w->color = black;
 				x->parent->color = red;
-				rbt_leftRotate(tree, x->parent);
+				wasmjpeg_rbt_leftRotate(tree, x->parent);
 				w = x->parent->right;
 			}
 			if (w->left->color == black && w->right->color == black)
@@ -338,13 +338,13 @@ void rbt_deleteNodeFixup(RedBlackTree *tree, RedBlackNode* x)
 				{
 					w->left->color = black;
 					w->color = red;
-					rbt_rightRotate(tree, w);
+					wasmjpeg_rbt_rightRotate(tree, w);
 					w = x->parent->right;
 				}
 				w->color = x->parent->color;
 				x->parent->color = black;
 				w->right->color = black;
-				rbt_leftRotate(tree, x->parent);
+				wasmjpeg_rbt_leftRotate(tree, x->parent);
 				x = tree->root;
 			}
 		}
@@ -355,7 +355,7 @@ void rbt_deleteNodeFixup(RedBlackTree *tree, RedBlackNode* x)
 			{
 				w->color = black;
 				x->parent->color = red;
-				rbt_rightRotate(tree, x->parent);
+				wasmjpeg_rbt_rightRotate(tree, x->parent);
 				w = x->parent->left;
 			}
 			if (w->right->color == black && w->left->color == black)
@@ -369,23 +369,23 @@ void rbt_deleteNodeFixup(RedBlackTree *tree, RedBlackNode* x)
 				{
 					w->right->color = black;
 					w->color = red;
-					rbt_leftRotate(tree, w);
+					wasmjpeg_rbt_leftRotate(tree, w);
 					w = x->parent->left;
 				}
 				w->color = x->parent->color;
 				x->parent->color = black;
 				w->left->color = black;
-				rbt_rightRotate(tree, x->parent);
+				wasmjpeg_rbt_rightRotate(tree, x->parent);
 				x = tree->root;
 			}
 		}
 	}
 	x->color = black;
 };
-RedBlackNode* rbt_deleteNode(RedBlackTree* tree, RedBlackNode* z)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_deleteNode(WASMJPEGRedBlackTree* tree, WASMJPEGRedBlackNode* z)
 {
-	RedBlackNode* x;
-	RedBlackNode* y;
+	WASMJPEGRedBlackNode* x;
+	WASMJPEGRedBlackNode* y;
 	if (z == tree->nil) {
 		return tree->nil;
 	}
@@ -395,7 +395,7 @@ RedBlackNode* rbt_deleteNode(RedBlackTree* tree, RedBlackNode* z)
 	}
 	else
 	{
-		y = rbt_successor(tree, z);
+		y = wasmjpeg_rbt_successor(tree, z);
 	}
 	if (y->left == tree->nil)
 	{
@@ -428,26 +428,26 @@ RedBlackNode* rbt_deleteNode(RedBlackTree* tree, RedBlackNode* z)
 	}
 	if (y->color == black)
 	{
-		rbt_deleteNodeFixup(tree, x);
+		wasmjpeg_rbt_deleteNodeFixup(tree, x);
 	}
 	free(y);
 	tree->size--;
 	return tree->nil;
 };
 
-RedBlackNode* rbt_push(RedBlackTree* tree, struct _ASTNode *value) {
-	RedBlackNode *rbt_max = rbt_maximum(tree, tree->root);
-	RedBlackNode *new_node = rbt_insert(tree, strdup(itoa__(atoi(strdup(rbt_max->key)) + 1, 10)), value);
+WASMJPEGRedBlackNode* wasmjpeg_rbt_push(WASMJPEGRedBlackTree* tree, struct _ASTNode *value) {
+	WASMJPEGRedBlackNode *wasmjpeg_rbt_max = wasmjpeg_rbt_maximum(tree, tree->root);
+	WASMJPEGRedBlackNode *new_node = wasmjpeg_rbt_insert(tree, strdup(itoa__(atoi(strdup(wasmjpeg_rbt_max->key)) + 1, 10)), value);
 	return new_node;
 }
 
-RedBlackNode* rbt_search_for_value(RedBlackTree *tree, struct _ASTNode *needle) {
-	RedBlackNode *node = rbt_minimum(tree, tree->root);
+WASMJPEGRedBlackNode* wasmjpeg_rbt_search_for_value(WASMJPEGRedBlackTree *tree, struct _ASTNode *needle) {
+	WASMJPEGRedBlackNode *node = wasmjpeg_rbt_minimum(tree, tree->root);
 	while (node && node != tree->nil) {
 		if (node->value == needle) {
 			return node;
 		}
-		node = rbt_successor(tree, node);
+		node = wasmjpeg_rbt_successor(tree, node);
 	}
 	return 0;
 }
