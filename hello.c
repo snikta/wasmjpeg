@@ -536,7 +536,7 @@ huffmanNode* generateHuffmanTree(WASMJPEGLinkedList *h, int sum, int htIdx) {
 				huffmanNode* node_ = oldRow->firstNode->huffNode;
 				oldRow->firstNode = oldRow->firstNode->nextNode;
 				node_->val = strdup(__node);
-				wasmjpeg_rbt_insert(myByCode, itoa__(hexToDec(__node), 10), CreateASTStringNode(strdup(node_->b)));
+				wasmjpeg_rbt_insert(myByCode, itoa__(hexToDec(__node), 10), WASMJPEGCreateASTStringNode(strdup(node_->b)));
 				count++;
 				if (count >= sum) {
 					return root;

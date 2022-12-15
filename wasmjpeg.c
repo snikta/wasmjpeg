@@ -113,8 +113,8 @@ WASMJPEGLinkedList *r_htChrAC = 0;
 WASMJPEGLinkedList *htByCode = 0;
 
 const int MACROBLOCK_SIZE = 8;
-int frameWidth = 48;//704;//192;//232;
-int frameHeight = 24;//182;//304;//152;
+int frameWidth = 704;//192;//232;
+int frameHeight = 182;//304;//152;
 
 char *bytes = "";
 int curBitIdx = 0;
@@ -519,7 +519,7 @@ huffmanNode* generateHuffmanTree(WASMJPEGLinkedList *h, int sum, int htIdx) {
 				huffmanNode* node_ = oldRow->firstNode->huffNode;
 				oldRow->firstNode = oldRow->firstNode->nextNode;
 				node_->val = strdup(__node);
-				wasmjpeg_rbt_insert(myByCode, itoa__(hexToDec(__node), 10), CreateASTStringNode(strdup(node_->b)));
+				wasmjpeg_rbt_insert(myByCode, itoa__(hexToDec(__node), 10), WASMJPEGCreateASTStringNode(strdup(node_->b)));
 				count++;
 				if (count >= sum) {
 					return root;
@@ -970,7 +970,7 @@ unsigned char *wasmjpeg() {
 	ht = generateHuffmanTree(r_htLumAC, 162, 3);
 
 	bytes = strdup("");
-	encodeImage(bmpHuff);
+	encodeImage(bmpnearspace);
 	printf("Encoding complete!\n");
 	bitIndex = 0;
 	byteIndex = 0;

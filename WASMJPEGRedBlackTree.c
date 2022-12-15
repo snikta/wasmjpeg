@@ -3,22 +3,16 @@
 #include "./mathHelpers.h"
 #include "./stringHelpers.h"
 
-/*_ASTNode *CreateASTPointNode(double x, double y) {
-	_ASTNode *retval = malloc(sizeof(_ASTNode));
+/*WASMJPEGASTNode *CreateASTPointNode(double x, double y) {
+	WASMJPEGASTNode *retval = malloc(sizeof(WASMJPEGASTNode));
 	retval->ASTXValue = x;
 	retval->ASTYValue = y;
 	return retval;
 }
 
-_ASTNode *CreateASTNumberNode(int num) {
-	_ASTNode *retval = malloc(sizeof(_ASTNode));
+WASMJPEGASTNode *CreateASTNumberNode(int num) {
+	WASMJPEGASTNode *retval = malloc(sizeof(WASMJPEGASTNode));
 	retval->ASTNumberValue = num;
-	return retval;
-}
-
-_ASTNode *CreateASTStringNode(char *str) {
-	_ASTNode *retval = malloc(sizeof(_ASTNode));
-	retval->ASTStringValue = str;
 	return retval;
 }
 
@@ -36,6 +30,12 @@ int isNaN(char *val) {
 	}
 	return 0;
 }*/
+
+WASMJPEGASTNode *WASMJPEGCreateASTStringNode(char *str) {
+	WASMJPEGASTNode *retval = malloc(sizeof(WASMJPEGASTNode));
+	retval->ASTStringValue = str;
+	return retval;
+}
 
 WASMJPEGRedBlackTree* wasmjpeg_rbt_create() {
 	WASMJPEGRedBlackTree* tree = (WASMJPEGRedBlackTree *) malloc(sizeof(WASMJPEGRedBlackTree));
@@ -143,10 +143,10 @@ void wasmjpeg_rbt_rightRotate(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode *
 	y->right = x;
 	x->parent = y;
 };
-WASMJPEGRedBlackNode* wasmjpeg_rbt_binaryInsert(WASMJPEGRedBlackTree *tree, char *newKey, struct _ASTNode *value)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_binaryInsert(WASMJPEGRedBlackTree *tree, char *newKey, struct WASMJPEGASTNode *value)
 {
 	WASMJPEGRedBlackNode* z = (WASMJPEGRedBlackNode *) malloc(sizeof(WASMJPEGRedBlackNode)); // free later?
-	z->color = black;
+	z->color = wasm_jpeg_black;
 	z->key = strdup(newKey);
 	z->left = tree->nil;
 	z->right = tree->nil;
@@ -204,7 +204,7 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_binaryInsert(WASMJPEGRedBlackTree *tree, char
 	z->value = value;
 	return z;
 };
-WASMJPEGRedBlackNode* wasmjpeg_rbt_insert(WASMJPEGRedBlackTree *tree, char *newKey, struct _ASTNode *value)
+WASMJPEGRedBlackNode* wasmjpeg_rbt_insert(WASMJPEGRedBlackTree *tree, char *newKey, struct WASMJPEGASTNode *value)
 {
 	WASMJPEGRedBlackNode *match = wasmjpeg_rbt_search(tree, newKey, 0);
 	if (match != tree->nil)
@@ -215,17 +215,17 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_insert(WASMJPEGRedBlackTree *tree, char *newK
 	WASMJPEGRedBlackNode* x = wasmjpeg_rbt_binaryInsert(tree, newKey, value);
 	WASMJPEGRedBlackNode* newNode = x;
 	WASMJPEGRedBlackNode* y;
-	x->color = red;
-	while (x != tree->root && x->parent->color == red)
+	x->color = wasm_jpeg_red;
+	while (x != tree->root && x->parent->color == wasm_jpeg_red)
 	{
 		if (x->parent == x->parent->parent->left)
 		{
 			y = x->parent->parent->right;
-			if (y->color == red)
+			if (y->color == wasm_jpeg_red)
 			{
-				x->parent->color = black;
-				y->color = black;
-				x->parent->parent->color = red;
+				x->parent->color = wasm_jpeg_black;
+				y->color = wasm_jpeg_black;
+				x->parent->parent->color = wasm_jpeg_red;
 				x = x->parent->parent;
 			}
 			else
@@ -235,19 +235,19 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_insert(WASMJPEGRedBlackTree *tree, char *newK
 					x = x->parent;
 					wasmjpeg_rbt_leftRotate(tree, x);
 				}
-				x->parent->color = black;
-				x->parent->parent->color = red;
+				x->parent->color = wasm_jpeg_black;
+				x->parent->parent->color = wasm_jpeg_red;
 				wasmjpeg_rbt_rightRotate(tree, x->parent->parent);
 			}
 		}
 		else
 		{
 			y = x->parent->parent->left;
-			if (y->color == red)
+			if (y->color == wasm_jpeg_red)
 			{
-				x->parent->color = black;
-				y->color = black;
-				x->parent->parent->color = red;
+				x->parent->color = wasm_jpeg_black;
+				y->color = wasm_jpeg_black;
+				x->parent->parent->color = wasm_jpeg_red;
 				x = x->parent->parent;
 			}
 			else
@@ -257,13 +257,13 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_insert(WASMJPEGRedBlackTree *tree, char *newK
 					x = x->parent;
 					wasmjpeg_rbt_rightRotate(tree, x);
 				}
-				x->parent->color = black;
-				x->parent->parent->color = red;
+				x->parent->color = wasm_jpeg_black;
+				x->parent->parent->color = wasm_jpeg_red;
 				wasmjpeg_rbt_leftRotate(tree, x->parent->parent);
 			}
 		}
 	}
-	tree->root->color = black;
+	tree->root->color = wasm_jpeg_black;
 	return newNode;
 };
 WASMJPEGRedBlackNode* wasmjpeg_rbt_minimum(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
@@ -315,35 +315,35 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_successor(WASMJPEGRedBlackTree *tree, WASMJPE
 void wasmjpeg_rbt_deleteNodeFixup(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNode* x)
 {
 	WASMJPEGRedBlackNode* w;
-	while (x != tree->root && x->color == black)
+	while (x != tree->root && x->color == wasm_jpeg_black)
 	{
 		if (x == x->parent->left)
 		{
 			w = x->parent->right;
-			if (w->color == red)
+			if (w->color == wasm_jpeg_red)
 			{
-				w->color = black;
-				x->parent->color = red;
+				w->color = wasm_jpeg_black;
+				x->parent->color = wasm_jpeg_red;
 				wasmjpeg_rbt_leftRotate(tree, x->parent);
 				w = x->parent->right;
 			}
-			if (w->left->color == black && w->right->color == black)
+			if (w->left->color == wasm_jpeg_black && w->right->color == wasm_jpeg_black)
 			{
-				w->color = red;
+				w->color = wasm_jpeg_red;
 				x = x->parent;
 			}
 			else
 			{
-				if (w->right->color == black)
+				if (w->right->color == wasm_jpeg_black)
 				{
-					w->left->color = black;
-					w->color = red;
+					w->left->color = wasm_jpeg_black;
+					w->color = wasm_jpeg_red;
 					wasmjpeg_rbt_rightRotate(tree, w);
 					w = x->parent->right;
 				}
 				w->color = x->parent->color;
-				x->parent->color = black;
-				w->right->color = black;
+				x->parent->color = wasm_jpeg_black;
+				w->right->color = wasm_jpeg_black;
 				wasmjpeg_rbt_leftRotate(tree, x->parent);
 				x = tree->root;
 			}
@@ -351,36 +351,36 @@ void wasmjpeg_rbt_deleteNodeFixup(WASMJPEGRedBlackTree *tree, WASMJPEGRedBlackNo
 		else
 		{
 			w = x->parent->left;
-			if (w->color == red)
+			if (w->color == wasm_jpeg_red)
 			{
-				w->color = black;
-				x->parent->color = red;
+				w->color = wasm_jpeg_black;
+				x->parent->color = wasm_jpeg_red;
 				wasmjpeg_rbt_rightRotate(tree, x->parent);
 				w = x->parent->left;
 			}
-			if (w->right->color == black && w->left->color == black)
+			if (w->right->color == wasm_jpeg_black && w->left->color == wasm_jpeg_black)
 			{
-				w->color = red;
+				w->color = wasm_jpeg_red;
 				x = x->parent;
 			}
 			else
 			{
-				if (w->left->color == black)
+				if (w->left->color == wasm_jpeg_black)
 				{
-					w->right->color = black;
-					w->color = red;
+					w->right->color = wasm_jpeg_black;
+					w->color = wasm_jpeg_red;
 					wasmjpeg_rbt_leftRotate(tree, w);
 					w = x->parent->left;
 				}
 				w->color = x->parent->color;
-				x->parent->color = black;
-				w->left->color = black;
+				x->parent->color = wasm_jpeg_black;
+				w->left->color = wasm_jpeg_black;
 				wasmjpeg_rbt_rightRotate(tree, x->parent);
 				x = tree->root;
 			}
 		}
 	}
-	x->color = black;
+	x->color = wasm_jpeg_black;
 };
 WASMJPEGRedBlackNode* wasmjpeg_rbt_deleteNode(WASMJPEGRedBlackTree* tree, WASMJPEGRedBlackNode* z)
 {
@@ -426,7 +426,7 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_deleteNode(WASMJPEGRedBlackTree* tree, WASMJP
 		z->key = strdup(y->key);
 		// copy any other fields
 	}
-	if (y->color == black)
+	if (y->color == wasm_jpeg_black)
 	{
 		wasmjpeg_rbt_deleteNodeFixup(tree, x);
 	}
@@ -435,13 +435,13 @@ WASMJPEGRedBlackNode* wasmjpeg_rbt_deleteNode(WASMJPEGRedBlackTree* tree, WASMJP
 	return tree->nil;
 };
 
-WASMJPEGRedBlackNode* wasmjpeg_rbt_push(WASMJPEGRedBlackTree* tree, struct _ASTNode *value) {
+WASMJPEGRedBlackNode* wasmjpeg_rbt_push(WASMJPEGRedBlackTree* tree, struct WASMJPEGASTNode *value) {
 	WASMJPEGRedBlackNode *wasmjpeg_rbt_max = wasmjpeg_rbt_maximum(tree, tree->root);
 	WASMJPEGRedBlackNode *new_node = wasmjpeg_rbt_insert(tree, strdup(itoa__(atoi(strdup(wasmjpeg_rbt_max->key)) + 1, 10)), value);
 	return new_node;
 }
 
-WASMJPEGRedBlackNode* wasmjpeg_rbt_search_for_value(WASMJPEGRedBlackTree *tree, struct _ASTNode *needle) {
+WASMJPEGRedBlackNode* wasmjpeg_rbt_search_for_value(WASMJPEGRedBlackTree *tree, struct WASMJPEGASTNode *needle) {
 	WASMJPEGRedBlackNode *node = wasmjpeg_rbt_minimum(tree, tree->root);
 	while (node && node != tree->nil) {
 		if (node->value == needle) {
