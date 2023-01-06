@@ -113,8 +113,8 @@ WASMJPEGLinkedList *r_htChrAC = 0;
 WASMJPEGLinkedList *htByCode = 0;
 
 const int MACROBLOCK_SIZE = 8;
-int frameWidth = 704;//192;//232;
-int frameHeight = 182;//304;//152;
+int frameWidth = 320;//704;//192;//232;
+int frameHeight = 240;//182;//304;//152;
 
 char *bytes = "";
 int curBitIdx = 0;
@@ -324,27 +324,16 @@ int huffmanEncode(int Yval, int i, int Y_zrl) {
 		else hcode &= ~(1 << 3);
 
 		char *bitstring = strdup(wasmjpeg_rbt_search(GetWASMJPEGLinkedListNodeByIndex(htByCode, 2)->rbt, itoa__(hcode, 10), 0)->value->ASTStringValue);
-		bitstring = append_string(bitstring, strdup(additionalBits));
+		bitstring = append_string(bitstring, additionalBits);
 		for (int i = 0, len = strlen(bitstring); i < len; i++)
 		{
 			addBit(bitstring[i] == '1');
 		}
 
+		free(bitstring);
 		free(additionalBits);
 	}
 	return Y_zrl;
-}
-
-char *getDCTKey(int y, int x, int Y, int X) {
-	char *key = strdup("");
-	key = append_string(key, itoa__(y, 10));
-	key = append_char_to_string(key, '_');
-	key = append_string(key, itoa__(x, 10));
-	key = append_char_to_string(key, '_');
-	key = append_string(key, itoa__(Y, 10));
-	key = append_char_to_string(key, '_');
-	key = append_string(key, itoa__(X, 10));
-	return key;
 }
 
 RGB *YCbCr_to_RGB(double Y, double Cb, double Cr) {
@@ -656,12 +645,16 @@ void decodeImage(huffmanNode *ht) {
 			}
 			r+=width*4;
 	}
+	free(bytes);
+GetWASMJPEGLinkedListNodeByIndex(macroblocks, mcuIdx)->str = 0;
 mcuIdx++;
 }
 }
+	ClearWASMJPEGLinkedList(macroblocks);
+	free(macroblocks);
 }
 
-unsigned char *wasmjpeg() {
+void initWASMJPEG() {
 	r_htLumDC = CreateWASMJPEGLinkedList();
 	WASMJPEGLinkedListNode *Node = CreateWASMJPEGLinkedListNodeFromNewWASMJPEGLinkedList();
 	AppendNodeToWASMJPEGLinkedList(r_htLumDC, Node);
@@ -932,26 +925,6 @@ unsigned char *wasmjpeg() {
 	AppendNodeToWASMJPEGLinkedList(huffmanTrees, CreateWASMJPEGLinkedListNodeFromWASMJPEGLinkedList(r_htLumAC));
 	AppendNodeToWASMJPEGLinkedList(huffmanTrees, CreateWASMJPEGLinkedListNodeFromWASMJPEGLinkedList(r_htLumAC));
 
-	Node = huffmanTrees->firstNode;
-	while (Node) {
-		WASMJPEGLinkedListNode *Node2 = Node->lst->firstNode;
-		while (Node2) {
-			WASMJPEGLinkedListNode *Node3 = Node2->lst->firstNode;
-			char *str = strdup("");
-			while (Node3) {
-				str = append_string(str, Node3->str);
-				if (Node3->nextNode) {
-					str = append_char_to_string(str, ',');
-				}
-				Node3 = Node3->nextNode;
-			}
-			printf("{%s}\n", str);
-			Node2 = Node2->nextNode;
-		}
-		printf("...\n");
-		Node = Node->nextNode;
-	}
-
 	htByCode = CreateWASMJPEGLinkedList();
 	AppendNodeToWASMJPEGLinkedList(htByCode, CreateWASMJPEGLinkedListNodeFromNewWASMJPEGRedBlackTree());
 	AppendNodeToWASMJPEGLinkedList(htByCode, CreateWASMJPEGLinkedListNodeFromNewWASMJPEGRedBlackTree());
@@ -968,9 +941,11 @@ unsigned char *wasmjpeg() {
 	ht = generateHuffmanTree(r_htLumAC, 162, 1);
 	ht = generateHuffmanTree(r_htLumAC, 162, 2);
 	ht = generateHuffmanTree(r_htLumAC, 162, 3);
+}
 
+unsigned char *wasmjpeg(unsigned char *imageToEncode) {
 	bytes = strdup("");
-	encodeImage(bmpnearspace);
+	encodeImage(imageToEncode);
 	printf("Encoding complete!\n");
 	bitIndex = 0;
 	byteIndex = 0;

@@ -50,7 +50,7 @@ WASMJPEGLinkedListNode *CreateWASMJPEGLinkedListNodeFromNewWASMJPEGRedBlackTree(
 
 WASMJPEGLinkedListNode *CreateWASMJPEGLinkedListNodeFromString(char *str) {
 	WASMJPEGLinkedListNode *Node = (WASMJPEGLinkedListNode *) malloc(sizeof(WASMJPEGLinkedListNode));
-	Node->str = strdup(str);
+	Node->str = str;
 	return Node;
 }
 
